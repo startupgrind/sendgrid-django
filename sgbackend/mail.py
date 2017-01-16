@@ -104,6 +104,9 @@ class SendGridBackend(BaseEmailBackend):
                 for k, v in email.substitutions.items():
                     personalization.add_substitution(Substitution(k, v))
 
+        if hasattr(email, 'reply_to') and email.reply_to:
+            mail.set_reply_to(Email(email.reply_to[0]))
+
         for k, v in email.extra_headers.items():
             mail.add_header({k: v})
 
