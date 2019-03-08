@@ -4,6 +4,8 @@ import base64
 import sys
 from email.mime.base import MIMEBase
 
+import six
+
 try:
     from urllib.error import HTTPError  # pragma: no cover
 except ImportError: # pragma: no cover
@@ -130,14 +132,13 @@ class SendGridBackend(BaseEmailBackend):
                 filename, content, mimetype = attachment
                 basetype, subtype = mimetype.split('/', 1)
 
-                if basetype == 'text' and isinstance(content, str):
+                if basetype == 'text' and isinstance(content, six.text_type):
                     # Django expects a text string if the MIME type is
                     # text/*, so we'll need to encode the string
                     content = base64.b64encode(
                         content.encode('utf-8')).decode('utf-8')
-
-                if isinstance(content, bytes):
-                    # If the content is bytes, simply encode then convert
+                else:
+                    # If the content is bytes, or anything else simply encode then convert
                     # to a text string
                     content = base64.b64encode(content).decode('utf-8')
 

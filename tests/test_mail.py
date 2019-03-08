@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from email.mime.text import MIMEText
 
 from django.conf import settings
@@ -161,6 +163,25 @@ class SendGridBackendTests(TestCase):
                  'content': [{'type': 'text/plain', 'value': ''}],
                  'attachments': [{
                     'content': 'U3RyaW5nIGNvbnRlbnQ=',
+                    'type': 'text/plain',
+                    'filename': 'file.txt'}]}
+            )
+
+    def test_build_sg_email_w_unicode_attachment(self):
+        """
+        Test text/* attachment passed as a text string
+        """
+        attachments = (('file.txt', u'String content ©', 'text/plain'),)
+        msg = EmailMessage(attachments=attachments)
+        with self.settings(SENDGRID_API_KEY='test_key'):
+            mail = SendGridBackend()._build_sg_mail(msg)
+            self.assertEqual(
+                mail,
+                {'from': {'email': 'webmaster@localhost'},
+                 'subject': '', 'personalizations': [{'subject': ''}],
+                 'content': [{'type': 'text/plain', 'value': ''}],
+                 'attachments': [{
+                    'content': 'U3RyaW5nIGNvbnRlbnQgwqk=',
                     'type': 'text/plain',
                     'filename': 'file.txt'}]}
             )
